@@ -18,7 +18,7 @@ module Sigh
 
     def resign(ipa, signing_identity, provisioning_profiles, entitlements, version, display_name, short_version, bundle_version, new_bundle_id, use_app_entitlements, keychain_path)
       resign_path = find_resign_path
-      signing_identity = find_signing_identity(signing_identity)
+      signing_identity = find_signing_identity(signing_identity, keychain_path)
 
       unless provisioning_profiles.kind_of?(Enumerable)
         provisioning_profiles = [provisioning_profiles]
@@ -69,7 +69,7 @@ module Sigh
 
     def get_inputs(options, args)
       ipa = args.first || find_ipa || UI.input('Path to ipa file: ')
-      signing_identity = options.signing_identity || ask_for_signing_identity
+      signing_identity = options.signing_identity || ask_for_signing_identity(options.keychain_path)
       provisioning_profiles = options.provisioning_profile || find_provisioning_profile || UI.input('Path to provisioning file: ')
       entitlements = options.entitlements || nil
       version = options.version_number || nil
@@ -99,17 +99,17 @@ module Sigh
       Dir[File.join(Dir.pwd, '*.mobileprovision')].sort { |a, b| File.mtime(a) <=> File.mtime(b) }.first
     end
 
-    def find_signing_identity(signing_identity)
-      until (signing_identity = sha1_for_signing_identity(signing_identity))
+    def find_signing_identity(signing_identity, keychain_path=nil)
+      until (signing_identity = sha1_for_signing_identity(signing_identity, keychain_path))
         UI.error "Couldn't find signing identity '#{signing_identity}'."
-        signing_identity = ask_for_signing_identity
+        signing_identity = ask_for_signing_identity(keychain_path)
       end
 
       signing_identity
     end
 
-    def sha1_for_signing_identity(signing_identity)
-      identities = installed_identities
+    def sha1_for_signing_identity(signing_identity, keychain_path=nil)
+      identities = installed_identities(keychain_path)
       return signing_identity if identities.keys.include?(signing_identity)
       identities.key(signing_identity)
     end
@@ -156,18 +156,18 @@ module Sigh
       end
     end
 
-    def print_available_identities
-      UI.message "Available identities: \n\t#{installed_identity_descriptions.join("\n\t")}\n"
+    def print_available_identities(keychain_path=nil)
+      UI.message "Available identities: \n\t#{installed_identity_descriptions(keychain_path).join("\n\t")}\n"
     end
 
-    def ask_for_signing_identity
-      print_available_identities
+    def ask_for_signing_identity(keychain_path=nil)
+      print_available_identities(keychain_path)
       UI.input('Signing Identity: ')
     end
 
     # Hash of available signing identities
-    def installed_identities
-      available = request_valid_identities
+    def installed_identities(keychain_path=nil)
+      available = request_valid_identities(keychain_path)
       ids = {}
       available.split("\n").each do |current|
         begin
@@ -182,13 +182,18 @@ module Sigh
       ids
     end
 
-    def request_valid_identities
-      `security find-identity -v -p codesigning`
+    #
+    # Returns available signing identities.
+    # Uses default keychain unless `keychain_path` is specified
+    #
+    def request_valid_identities(keychain_path)
+      keychain_arg = keychain_path || ''
+      `security find-identity -v -p codesigning #{keychain_arg}`
     end
 
-    def installed_identity_descriptions
+    def installed_identity_descriptions(keychain_path=nil)
       descriptions = []
-      installed_identities.group_by { |sha1, name| name }.each do |name, identities|
+      installed_identities(keychain_path).group_by { |sha1, name| name }.each do |name, identities|
         descriptions << name
         # Show SHA-1 for homonymous identities
         descriptions += identities.map do |sha1, _|
