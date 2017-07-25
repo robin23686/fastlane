@@ -4,6 +4,8 @@ module FastlaneCore
   class Shell < Interface
     require 'tty-screen'
 
+    attr_accessor :log
+
     def log
       return @log if @log
 
