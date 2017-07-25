@@ -22,17 +22,17 @@ module Sigh
       end
     end
 
-    def self.resign(ipa:ipa,
-                    signing_identity:signing_identity,
-                    provisioning_profiles:provisioning_profiles,
-                    entitlements:entitlements,
-                    version:version,
-                    display_name:display_name,
-                    short_version:short_version,
-                    bundle_version:bundle_version,
-                    new_bundle_id:new_bundle_id,
-                    use_app_entitlements:use_app_entitlements,
-                    keychain:keychain)
+    def self.resign(ipa:nil,
+                    signing_identity:nil,
+                    provisioning_profiles:nil,
+                    entitlements:nil,
+                    version:nil,
+                    display_name:nil,
+                    short_version:nil,
+                    bundle_version:nil,
+                    new_bundle_id:nil,
+                    use_app_entitlements:nil,
+                    keychain:nil)
       #TODO: Logger
       self.new.resign(ipa:ipa,
                       signing_identity:signing_identity,
@@ -47,17 +47,17 @@ module Sigh
                       keychain:keychain)
     end
 
-    def resign(ipa:ipa,
-               signing_identity:signing_identity,
-               provisioning_profiles:provisioning_profiles,
-               entitlements:entitlements,
-               version:version,
-               display_name:display_name,
-               short_version:short_version,
-               bundle_version:bundle_version,
-               new_bundle_id:new_bundle_id,
-               use_app_entitlements:use_app_entitlements,
-               keychain:keychain)
+    def resign(ipa:nil,
+               signing_identity:nil,
+               provisioning_profiles:nil,
+               entitlements:nil,
+               version:nil,
+               display_name:nil,
+               short_version:nil,
+               bundle_version:nil,
+               new_bundle_id:nil,
+               use_app_entitlements:nil,
+               keychain:nil)
       resign_path = find_resign_path
       signing_identity = find_signing_identity(signing_identity, keychain)
 
