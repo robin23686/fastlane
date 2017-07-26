@@ -33,7 +33,6 @@ module Sigh
                     new_bundle_id:nil,
                     use_app_entitlements:nil,
                     keychain:nil)
-      #TODO: Logger
       self.new.resign(ipa:ipa,
                       signing_identity:signing_identity,
                       provisioning_profiles:provisioning_profiles,
@@ -79,8 +78,7 @@ module Sigh
       use_app_entitlements_flag = '--use-app-entitlements' if use_app_entitlements
       specific_keychain = "--keychain-path #{keychain.shellescape}" if keychain
 
-      command = [
-        resign_path.shellescape,
+      args = [
         ipa.shellescape,
         signing_identity.shellescape,
         provisioning_options, # we are aleady shellescaping this above, when we create the provisioning_options from the provisioning_profiles
@@ -94,18 +92,25 @@ module Sigh
         bundle_id,
         specific_keychain,
         ipa.shellescape # Output path must always be last argument
-      ].join(' ')
+      ]
 
-      puts command.magenta
-      puts `#{command}`
+      result = resign_cmd(resign_path.shellescape, args)
 
-      if $?.to_i == 0
+      if result.to_i == 0
         UI.success "Successfully signed #{ipa}!"
         true
       else
         UI.error "Something went wrong while code signing #{ipa}"
         false
       end
+    end
+
+    def resign_cmd(resign_script_path, args_list)
+      args_list.unshift(resign_script_path)
+      command = args_list.join(' ')
+      puts command.magenta
+      puts `#{command}`
+      $?
     end
 
     def get_inputs(options, args)
