@@ -110,7 +110,7 @@ module Sigh
       args_list.unshift(resign_script_path)
       command = args_list.join(' ')
       puts command.magenta
-      puts `#{command}`
+      UI.message `#{command}`
       $?
     end
 
