@@ -94,6 +94,7 @@ module Sigh
         ipa.shellescape # Output path must always be last argument
       ]
 
+      UI.message "EXEC: #{resign_path.shellescape} #{args.join(' ')}"
       result = resign_cmd(resign_path.shellescape, args)
 
       if result.to_i == 0
