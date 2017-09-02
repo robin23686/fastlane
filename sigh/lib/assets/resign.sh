@@ -220,9 +220,11 @@ while [ "$1" != "" ]; do
 done
 
 KEYCHAIN_FLAG=
+KEYCHAIN_SHORT_FLAG=
 if [ -n "$KEYCHAIN_PATH" ]
 then
     KEYCHAIN_FLAG="--keychain $KEYCHAIN_PATH"
+    KEYCHAIN_SHORT_FLAG="-k $KEYCHAIN_PATH"
 fi
 
 # Log the options
@@ -340,7 +342,7 @@ function provision_for_bundle_id {
 # Find the bundle identifier contained inside a provisioning profile
 function bundle_id_for_provison {
 
-    local FULL_BUNDLE_ID=$(PlistBuddy -c 'Print :Entitlements:application-identifier' /dev/stdin <<< "$(security cms -D -i "$1")")
+    local FULL_BUNDLE_ID=$(PlistBuddy -c 'Print :Entitlements:application-identifier' /dev/stdin <<< "$(security cms -D "$KEYCHAIN_SHORT_FLAG" -i "$1")")
     checkStatus
     echo "${FULL_BUNDLE_ID#*.}"
 }
@@ -459,7 +461,7 @@ function resign {
 
     # Replace the embedded mobile provisioning profile
     log "Validating the new provisioning profile: $NEW_PROVISION"
-    security cms -D -i "$NEW_PROVISION" > "$TEMP_DIR/profile.plist"
+    security cms -D "$KEYCHAIN_SHORT_FLAG" -i "$NEW_PROVISION" > "$TEMP_DIR/profile.plist"
     checkStatus
 
     APP_IDENTIFIER_PREFIX=$(PlistBuddy -c "Print :Entitlements:application-identifier" "$TEMP_DIR/profile.plist" | grep -E '^[A-Z0-9]*' -o | tr -d '\n')
@@ -648,7 +650,7 @@ function resign {
 
         # Get the old and the new team ID
         # Old team ID is not part of app entitlements, have to get it from old embedded provisioning profile
-        security cms -D -i "$TEMP_DIR/old-embedded.mobileprovision" > "$TEMP_DIR/old-embedded-profile.plist"
+        security cms -D "$KEYCHAIN_SHORT_FLAG" -i "$TEMP_DIR/old-embedded.mobileprovision" > "$TEMP_DIR/old-embedded-profile.plist"
         OLD_TEAM_ID=$(PlistBuddy -c "Print :TeamIdentifier:0" "$TEMP_DIR/old-embedded-profile.plist")
         # New team ID is part of profile entitlements
         NEW_TEAM_ID=$(PlistBuddy -c "Print com.apple.developer.team-identifier" "$PROFILE_ENTITLEMENTS" | grep -E '^[A-Z0-9]*' -o | tr -d '\n')
