@@ -284,7 +284,7 @@ module Deliver
                                          keywords = keywords.join(", ") if keywords.kind_of?(Array)
                                          value[language] = keywords
 
-                                         UI.user_error!(":keywords must be a hash with all values being strings") unless keywords.kind_of?(String)
+                                         UI.user_error!("keywords must be a hash with all values being strings") unless keywords.kind_of?(String)
                                        end
                                      end),
         FastlaneCore::ConfigItem.new(key: :promotional_text,
@@ -309,6 +309,17 @@ module Deliver
         FastlaneCore::ConfigItem.new(key: :marketing_url,
                                      description: "Metadata: Localised marketing url",
                                      optional: true,
+                                     is_string: false),
+        # The verify_block has been removed from here and verification now happens in Deliver::DetectValues
+        # Verification needed Spaceship::Tunes.client which required the Deliver::Runner to already by started
+        FastlaneCore::ConfigItem.new(key: :languages,
+                                     description: "Metadata: List of languages to activate",
+                                     type: Array,
+                                     optional: true),
+        FastlaneCore::ConfigItem.new(key: :ignore_language_directory_validation,
+                                     env_name: "DELIVER_IGNORE_LANGUAGE_DIRECTORY_VALIDATION",
+                                     description: "Ignore errors when invalid languages are found in metadata and screeenshot directories",
+                                     default_value: false,
                                      is_string: false)
       ]
     end

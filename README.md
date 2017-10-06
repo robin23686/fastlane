@@ -161,13 +161,21 @@ You can easily opt-out of metrics collection by adding `opt_out_usage` at the to
 
 ## Crash Reporting
 
-In order to continuously improve stability, _fastlane_ will record crash reports with sanitized stacktraces. Sanitization removes personal information from the stacktrace and error message (including home directories, _fastlane_ path, gem paths, environment variables, and parameters).
+In order to continuously improve stability, _fastlane_ will record crash reports with sanitized stack traces. Sanitization removes personal information from the stack trace and error message (including home directories, _fastlane_ path, gem paths, environment variables, and parameters).
 
 You can easily opt-out of crash reporting by adding `opt_out_crash_reporting` at the top of your `Fastfile` or by setting the environment variable `FASTLANE_OPT_OUT_CRASH_REPORTING`. Just like metrics mentioned above, participating helps us provide the best possible support for _fastlane_, so we hope you'll consider it a plus! :heavy_plus_sign:
 
 ## Need Help?
 
-Please [submit an issue](https://github.com/fastlane/fastlane/issues) on GitHub and provide information about your setup.
+Before submitting a new GitHub issue, please make sure to
+
+- Check out [docs.fastlane.tools](https://docs.fastlane.tools)
+- Check out the README pages on [this repo](https://github.com/fastlane/fastlane)
+- Search for [existing GitHub issues](https://github.com/fastlane/fastlane/issues)
+
+If the above doesn't help, please [submit an issue](https://github.com/fastlane/fastlane/issues) on GitHub and provide information about your setup, in particular the output of the `fastlane env` command.
+
+**Note**: If you want to report a regression in _fastlane_ (something that has worked before, but broke with a new release), please mark your issue title as such using `[Regression] Your title here`. This enables us to quickly detect and fix regressions.
 
 ## Special Thanks
 

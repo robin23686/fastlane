@@ -254,6 +254,13 @@ describe Spaceship::Client do
         expect(response.keys).to include('name', 'status', 'type', 'appId', 'deviceIds')
         expect(response['distributionMethod']).to eq('limited')
       end
+
+      it "works when template name is specified" do
+        template_name = 'Subscription Service iOS (dist)'
+        response = subject.create_provisioning_profile!("net.sunapps.106 limited", "limited", 'R9YNDTPLJX', ['C8DL7464RQ'], [], mac: false, sub_platform: nil, template_name: template_name)
+        expect(response.keys).to include('name', 'status', 'type', 'appId', 'deviceIds', 'template')
+        expect(response['template']['purposeDisplayName']).to eq(template_name)
+      end
     end
 
     describe '#delete_provisioning_profile!' do
@@ -324,6 +331,39 @@ describe Spaceship::Client do
       it 'revokes a key' do
         subject.revoke_key!(id: '123')
         expect(WebMock).to have_requested(:post, api_root + '/revoke')
+      end
+    end
+  end
+
+  describe 'merchant api' do
+    let(:api_root) { 'https://developer.apple.com/services-account/QH65B2/account/ios/identifiers/' }
+    before do
+      MockAPI::DeveloperPortalServer.post('/services-account/QH65B2/account/ios/identifiers/:action') do
+        {
+          identifierList: [],
+          omcId: []
+        }
+      end
+    end
+
+    describe '#merchants' do
+      it 'lists merchants' do
+        subject.merchants
+        expect(WebMock).to have_requested(:post, api_root + 'listOMCs.action')
+      end
+    end
+
+    describe '#create_merchant!' do
+      it 'creates a merchant' do
+        subject.create_merchant!('ExampleApp Production', 'merchant.com.example.app.production')
+        expect(WebMock).to have_requested(:post, api_root + 'addOMC.action').with(body: { name: 'ExampleApp Production', identifier: 'merchant.com.example.app.production', teamId: 'XXXXXXXXXX' })
+      end
+    end
+
+    describe '#delete_merchant!' do
+      it 'deletes a merchant' do
+        subject.delete_merchant!('LM3IY56BXC')
+        expect(WebMock).to have_requested(:post, api_root + 'deleteOMC.action').with(body: { omcId: 'LM3IY56BXC', teamId: 'XXXXXXXXXX' })
       end
     end
   end

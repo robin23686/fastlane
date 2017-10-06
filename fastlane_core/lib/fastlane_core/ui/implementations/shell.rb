@@ -62,7 +62,7 @@ module FastlaneCore
     end
 
     def command(message)
-      log.info("$ #{message}".cyan.underline)
+      log.info("$ #{message}".cyan)
     end
 
     def command_output(message)
